@@ -69,6 +69,12 @@ export default {
       }
     };
 
+    const handleDotClick = () => {
+      if (!state.calcDisp.includes('.')) {
+        state.calcDisp += '.';
+      }
+    };
+
     const handleOperandClick = (num, e) => {
       // Your logic for operand click
     };
@@ -78,6 +84,8 @@ export default {
 
       if (!isNaN(+num)) {
         handleNumberClick(num, e);
+      } else if (num === '.') {
+        handleDotClick();
       }
     };
 
