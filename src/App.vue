@@ -127,6 +127,22 @@ export default {
       }
     };
 
+    const handleDel = (operand) => {
+      if (operand === 'C' && state.calcDisp !== '') {
+        state.calcDisp = '';
+        state.delKey = state.calcMem.length > 0 ? 'CE' : 'C';
+      } else if (operand === 'CE') {
+        if (state.calcDisp !== '') {
+          state.calcDisp = '';
+          state.delKey = 'CE';
+        } else {
+          state.calcMem = [];
+          state.delKey = 'C';
+        };
+      }
+    };
+
+    // Listeners for click events and conditionals
     const handleClick = (e) => {
       let num = e.target.innerHTML;
       let numId = e.target.id;
@@ -139,6 +155,8 @@ export default {
         handleOperandClick(num, e);
       } else if (num === '=') {
         handleEqualClick();
+      } else if (['C', 'CE'].includes(num)) {
+        handleDel(num);
       }
     };
 
@@ -153,7 +171,7 @@ export default {
     });
 
     // Return the methods you want to expose to the template
-    return { state, handleNumberClick, handleOperandClick };
+    return { state, handleNumberClick, handleOperandClick, handleDel };
   },
 }
 
