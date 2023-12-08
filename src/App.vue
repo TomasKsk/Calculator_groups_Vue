@@ -46,6 +46,8 @@ export default {
       calcDisp: '',
       calcOp: '',
       delKey: 'C',
+      calcStorage: {},
+      calcMemCount: 0,
     });
 
     const handleNumberClick = (num, e) => {
@@ -142,6 +144,25 @@ export default {
       }
     };
 
+    const saveCalc = () => {
+      let name = `calc_${state.calcMemCount}`;
+      let newCalc = state.calcMem.map(a => (typeof +(a) == 'number' && !isNaN(a)) ? +(a) : a);
+
+      state.calcStorage = {
+        ...state.calcStorage,
+        [name]: {
+          'calculation': newCalc,
+          'comments': newCalc.slice(0,-2).map(a => (typeof a == 'number' && a !== '=') ? '...' : null).concat(null, null),
+          'name': name
+        }
+      };
+
+      state.calcMemCount += 1;
+      state.saveIco = '';
+      state.calcMem = [];
+      state.calcDisp = '';
+    };
+
     // Listeners for click events and conditionals
     const handleClick = (e) => {
       let num = e.target.innerHTML;
@@ -157,6 +178,8 @@ export default {
         handleEqualClick();
       } else if (['C', 'CE'].includes(num)) {
         handleDel(num);
+      } else if (numId === 'save-icon-place') {
+        saveCalc();
       }
     };
 
