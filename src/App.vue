@@ -163,6 +163,17 @@ export default {
       state.calcDisp = '';
     };
 
+    const handleMenu = (e) => {
+      let sel = e.target.innerHTML;
+      if (sel === '≡' || sel === 'x') {
+        let sel = document.querySelector('.calc-mem-storage')
+        let condi = sel !== null;
+        state.menuIcon = state.menuIcon === 'x' ? '≡' : 'x';
+        if (condi) return sel.classList.toggle('visible');
+      }
+    };
+
+
     // Listeners for click events and conditionals
     const handleClick = (e) => {
       let num = e.target.innerHTML;
@@ -180,6 +191,8 @@ export default {
         handleDel(num);
       } else if (numId === 'save-icon-place') {
         saveCalc();
+      } else if (numId === 'menu-icon-place') {
+        handleMenu(e);
       }
     };
 
