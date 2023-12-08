@@ -3,7 +3,7 @@
     <div class="calc-display">
       <div id="menu-icon-place" class="storage-window" @click="handleMenu">{{ state.menuIcon }}</div>
       <div class="calc-current">{{ state.calcDisp }}</div>
-      <div class="calc-mem">{{ state.calcMem }}</div>
+      <div class="calc-mem">{{ state.calcMem.join('') }}</div>
       <div><span class="save-button saveIcon" id="save-icon-place" @click="saveCalc">{{ state.saveIco }}</span></div>
     </div>
 
@@ -76,16 +76,38 @@ export default {
     };
 
     const handleOperandClick = (num, e) => {
-      // Your logic for operand click
+      if (e.target.matches('button')) {
+        console.log('button')
+        if (state.calcDisp !== '') {
+          console.log('not clear')
+          if (state.calcMem.includes('=')) {
+            state.calcOp = num;
+            state.calcMem = [state.calcDisp, num];
+            state.calcDisp = '';
+          } else {
+            state.calcOp = num;
+            state.calcMem = [...state.calcMem, state.calcDisp, num];
+            state.calcDisp = '';
+          }
+        } else {
+          if (state.calcMem.length > 0) {
+            state.calcOp = num;
+            state.calcMem = [...state.calcMem.slice(0, -1), num];
+          }
+        };
+      }
     };
 
     const handleClick = (e) => {
       let num = e.target.innerHTML;
+      let numId = e.target.id;
 
       if (!isNaN(+num)) {
         handleNumberClick(num, e);
       } else if (num === '.') {
         handleDotClick();
+      } else if (operandArr.includes(num) && numId !== 'menu-icon-place') {
+        handleOperandClick(num, e);
       }
     };
 
