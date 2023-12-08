@@ -77,9 +77,7 @@ export default {
 
     const handleOperandClick = (num, e) => {
       if (e.target.matches('button')) {
-        console.log('button')
         if (state.calcDisp !== '') {
-          console.log('not clear')
           if (state.calcMem.includes('=')) {
             state.calcOp = num;
             state.calcMem = [state.calcDisp, num];
@@ -98,6 +96,37 @@ export default {
       }
     };
 
+    const parseOp = (num1, op, num2) => {
+      num1 = +(num1);
+      num2 = +(num2);
+      if (op === '+') return num1 + num2;
+      if (op === '-') return num1 - num2;
+      if (op === 'x' || op === '*') return num1 * num2;
+      if (op === '÷' || op === '/') return num1 / num2;
+    }
+
+    const recalc = (arr) => {
+      let temp2 = [...arr];
+      let temp = parseOp(temp2[0], temp2[1], temp2[2]);
+      temp2.splice(0, 3);
+
+      while (temp2.length > 0 && temp2[0] !== '=') {
+        let cur = temp2.splice(0, 2);
+        temp = parseOp(temp, cur[0], cur[1]);
+      }
+      return temp;
+    }
+
+    const handleEqualClick = () => {
+      if (state.calcDisp !== '' && state.calcMem.length > 1) {
+        let tempMem = [...state.calcMem, state.calcDisp];
+        let tempDisp = recalc(tempMem);
+        state.calcMem = [...state.calcMem, state.calcDisp, '=', tempDisp];
+        state.calcDisp = tempDisp;
+        state.saveIco = '<';
+      }
+    };
+
     const handleClick = (e) => {
       let num = e.target.innerHTML;
       let numId = e.target.id;
@@ -108,6 +137,8 @@ export default {
         handleDotClick();
       } else if (operandArr.includes(num) && numId !== 'menu-icon-place') {
         handleOperandClick(num, e);
+      } else if (num === '=') {
+        handleEqualClick();
       }
     };
 
