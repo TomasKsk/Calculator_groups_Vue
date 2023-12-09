@@ -230,7 +230,21 @@ export default {
       state.calcStorage = reindexKeys(newObj);
       const keys = Object.keys(state.calcStorage);
       state.calcMemCount = keys.length > 0 ? +keys.pop().replace(/\D+/, '') + 1 : 0;
+    };
 
+    const addNum = (e) => {
+      const key = e.target.dataset.idparent;
+      const updatedCalc = [...state.calcStorage[key]['calculation'].slice(0, -2), '+', 0, ...state.calcStorage[key]['calculation'].slice(-2)];
+      const updatedComm = [...state.calcStorage[key]['comments'].slice(0, -2), null, '...', null, null];
+
+      state.calcStorage = {
+        ...state.calcStorage,
+        [key]: {
+          ...state.calcStorage[key],
+          calculation: updatedCalc,
+          comments: updatedComm,
+        }
+      };
     }
 
 
@@ -257,6 +271,8 @@ export default {
         handleMenu(e);
       } else if (type === 'deleteButton') {
         handleDelete(e);
+      } else if (type === 'addNum') {
+        addNum(e);
       }
     };
 
