@@ -197,17 +197,55 @@ export default {
       }
     };
 
+    const reindexKeys = (obj) => {
+      const currKeys = Object.keys(obj);
+      const mapping = currKeys.reduce((acc, key, index) => {
+        const newKey = `calc_${index}`;
+        acc[key] = newKey;
+        return acc;
+      }, {});
+      const updatedObj = Object.fromEntries(
+        Object.entries(obj).map(([oldKey, value]) => {
+          const newKey = mapping[oldKey];
+          const currentName = value.name;
+
+          const updatedName = currentName.includes('calc_') ? newKey : currentName;
+
+          const updatedValue = {
+            ...value,
+            name: updatedName,
+          };
+          return [newKey, updatedValue];
+        })
+      );
+      return updatedObj;
+    }
+
+    const handleDelete = (e) => {
+      console.log('handling delete')
+      const parent = e.target.dataset.idparent;
+      const entries = Object.entries(state.calcStorage);
+      const filtered = entries.filter(([key]) => key !== parent);
+      const newObj = Object.fromEntries(filtered);
+      state.calcStorage = reindexKeys(newObj);
+      const keys = Object.keys(state.calcStorage);
+      state.calcMemCount = keys.length > 0 ? +keys.pop().replace(/\D+/, '') + 1 : 0;
+
+    }
+
 
     // Listeners for click events and conditionals
     const handleClick = (e) => {
       let num = e.target.innerHTML;
       let numId = e.target.id;
+      let dataT = e.target.dataset;
+      let type = e.target.dataset.type;
 
       if (!isNaN(+num)) {
         handleNumberClick(num, e);
       } else if (num === '.') {
         handleDotClick();
-      } else if (operandArr.includes(num) && numId !== 'menu-icon-place') {
+      } else if (operandArr.includes(num) && numId !== 'menu-icon-place' && type !== 'deleteButton') {
         handleOperandClick(num, e);
       } else if (num === '=' && numId !== 'menu-icon-place') {
         handleEqualClick();
@@ -217,6 +255,8 @@ export default {
         saveCalc();
       } else if (numId === 'menu-icon-place') {
         handleMenu(e);
+      } else if (type === 'deleteButton') {
+        handleDelete(e);
       }
     };
 
