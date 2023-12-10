@@ -312,6 +312,20 @@ export default {
         if (type === 'comment') {
           state.calcStorage[parent]['comments'][index] = inner;
         }
+
+        if (type === 'number') {
+          const thisCalc = state.calcStorage[parent]['calculation'].map((a,b) => (b == index) ? +inner : a);
+          const newObj = {
+            ...state.calcStorage[parent],
+            calculation: [...thisCalc.slice(0, -1), recalc(thisCalc)]
+          };
+
+          state.calcStorage = {
+            ...state.calcStorage,
+            [parent]: newObj
+          };
+          
+        } 
       }
     };
 
