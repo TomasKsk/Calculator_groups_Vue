@@ -185,6 +185,7 @@ export default {
       state.saveIco = '';
       state.calcMem = [];
       state.calcDisp = '';
+      console.log(state.calcStorage)
     };
 
     const handleMenu = (e) => {
@@ -199,6 +200,7 @@ export default {
 
     const reindexKeys = (obj) => {
       const currKeys = Object.keys(obj);
+      console.log(currKeys)
       const mapping = currKeys.reduce((acc, key, index) => {
         const newKey = `calc_${index}`;
         acc[key] = newKey;
@@ -225,11 +227,13 @@ export default {
       console.log('handling delete')
       const parent = e.target.dataset.idparent;
       const entries = Object.entries(state.calcStorage);
+      console.log(entries);
       const filtered = entries.filter(([key]) => key !== parent);
       const newObj = Object.fromEntries(filtered);
+      console.log(newObj)
       state.calcStorage = reindexKeys(newObj);
       const keys = Object.keys(state.calcStorage);
-      state.calcMemCount = keys.length > 0 ? +keys.pop().replace(/\D+/, '') + 1 : 0;
+      state.calcMemCount = keys.length > 0 ? +(keys.pop().replace(/\D+/, '')) + 1 : 0;
     };
 
     const addNum = (e) => {
@@ -245,8 +249,19 @@ export default {
           comments: updatedComm,
         }
       };
+    };
+
+    const selectMe = (e) => {
+      e.target.setAttribute('contenteditable', true);
+      document.execCommand('selectAll', false, null);
     }
 
+    const handleStorage = (e) => {
+      const dataT = e.target.dataset.type;
+      if (dataTypes.includes(dataT)) {
+        selectMe(e);
+      }
+    };
 
     // Listeners for click events and conditionals
     const handleClick = (e) => {
@@ -255,13 +270,17 @@ export default {
       let dataT = e.target.dataset;
       let type = e.target.dataset.type;
 
+      if (dataT.type) {
+        handleStorage(e);
+      }; 
+
       if (!isNaN(+num)) {
         handleNumberClick(num, e);
       } else if (num === '.') {
         handleDotClick();
       } else if (operandArr.includes(num) && numId !== 'menu-icon-place' && type !== 'deleteButton') {
         handleOperandClick(num, e);
-      } else if (num === '=' && numId !== 'menu-icon-place') {
+      } else if (num === '=' && numId !== 'menu-icon-place' && !state.calcMem.includes('=')) {
         handleEqualClick();
       } else if (['C', 'CE'].includes(num)) {
         handleDel(num);
@@ -276,14 +295,37 @@ export default {
       }
     };
 
+    const handleKey = (e) => {
+      const data = e.target.dataset;
+      const type = data.type;
+      const parent = data.idparent;
+      const index = data.index;
+      const inner = e.target.innerHTML;
+
+      if (e.key === 'Enter') {
+        e.target.setAttribute('contenteditable', false);
+
+        if (type === 'header') {
+          state.calcStorage[parent]['name'] = inner;
+        }
+
+        if (type === 'comment') {
+          state.calcStorage[parent]['comments'][index] = inner;
+        }
+      }
+    };
+
     // Set up event listeners when the component is mounted
     onMounted(() => {
       document.querySelector('.calc-grid').addEventListener('click', handleClick);
+      window.addEventListener('keydown', handleKey);
     });
 
     // Clean up event listeners when the component is unmounted
     onUnmounted(() => {
       document.querySelector('.calc-grid').removeEventListener('click', handleClick);
+      window.removeEventListener('keydown', handleKey);
+      console.log(state.calcStorage)
     });
 
     // Return the methods you want to expose to the template
