@@ -47,31 +47,25 @@
 </template>
 
 <script>
-import { reactive, onMounted, onUnmounted } from 'vue';
+import { reactive, onMounted, onUnmounted, watchEffect } from 'vue';
 
 
 const operandArr = ["÷", "x", "-", "+"];
 const dataTypes = ['header', 'number', 'comment', 'operator'];
 
 export default {
-  watch: {
-    calcStorage: {
-      handler(newValue) {
-        // local storage
-      },
-      deep: true
-    },
-  },
   setup() {
+    const calcStorage = JSON.parse(localStorage.getItem('Calc_save')) || {};
+
     const state = reactive({
-      calcStorage: {},
+      calcStorage: calcStorage,
       calcMem: [],
       menuIcon: '≡',
       saveIco: '',
       calcDisp: '',
       calcOp: '',
       delKey: 'C',
-      calcMemCount: 0,
+      calcMemCount: Object.keys(calcStorage).length > 0 ? +(Object.keys(calcStorage)[Object.keys(calcStorage).length - 1].match(/\d+/)[0]) + 1 : 0,
     });
 
     const handleNumberClick = (num, e) => {
@@ -263,6 +257,12 @@ export default {
       }
     };
 
+    watchEffect(() => {
+      // local storage
+      localStorage.setItem('Calc_save', JSON.stringify(state.calcStorage));
+      console.log('local storage updated')
+    });
+
     // Listeners for click events and conditionals
     const handleClick = (e) => {
       let num = e.target.innerHTML;
@@ -350,7 +350,6 @@ export default {
     onUnmounted(() => {
       document.querySelector('.calc-grid').removeEventListener('click', handleClick);
       window.removeEventListener('keydown', handleKey);
-      console.log(state.calcStorage)
     });
 
     // Return the methods you want to expose to the template
